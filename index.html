@@ -81,6 +81,13 @@
   Scroll to:   /* === DOWN DAYS === */  Add ISO dates (YYYY-MM-DD) to the set.
   Currently empty.
 
+  MOTION (display polish)
+  -----------------------
+  • A 40-second progress bar fills along the very bottom edge, then repeats.
+  • The current-day column glows, the switch alert pulses, and the crew
+    names drift with a slow, staggered float so the board feels alive.
+    All purely cosmetic — none of it affects the schedule logic.
+
   Supported names (case-sensitive):
      NEW crew:    Kyle F. / Link B.   Alex G. / Jason W.
                   Martin Z. / Leo G.  Noe M. / Gabriel Z.
@@ -92,24 +99,27 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* Team colors — deeper industrial workshop palette */
-    --blue:   #3A7A98;
-    --orange: #B06730;
-    --green:  #4E8046;
-    --yellow: #A58522;
-    --purple: #7A4E84;
-    --red:    #9B3E32;
+    /* Team colors — temporary-schedule jewel palette */
+    --blue:   #44648C;
+    --orange: #B4663C;
+    --green:  #3E7B62;
+    --yellow: #9C7E33;
+    --purple: #6E5586;
+    --red:    #A24E3F;
 
-    /* Neutral industrial palette */
-    --bg:         #EBE8DD;   /* warm stone */
-    --surface:    #F4F2EB;
-    --panel:      #E3DFD1;
-    --border:     #C9C4B2;
+    /* Warm stone palette */
+    --bg:         #E8E5DB;
+    --surface:    #FFFFFF;
+    --panel:      #F2EFE7;
+    --border:     #DAD5C7;
     --ink:        #1A1915;
-    --ink-sub:    #504D44;
-    --ink-dim:    #8C887C;
-    --accent:     #B54B28;   /* deep terracotta */
-    --on-cell:    #F4F2EB;   /* text on colored cells */
+    --ink-sub:    #4A4843;
+    --ink-dim:    #9A958C;
+    --accent:     #D2562F;   /* terracotta */
+    --on-cell:    #FFFFFF;   /* text on colored cells */
+    --card:        linear-gradient(180deg, #FFFFFF 0%, #F7F5EE 100%);
+    --shadow-card: 0 8px 20px rgba(26, 25, 21, 0.07);
+    --shadow-cell: 0 12px 26px rgba(26, 25, 21, 0.14);
   }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -140,7 +150,7 @@
     position: absolute;
     top: 0;
     left: 0;
-    background: var(--bg);
+    background: radial-gradient(132% 94% at 50% -16%, #F5F3EC 0%, #E8E5DB 62%);
     transform-origin: top left;
     overflow: hidden;
     transform: scale(1);
@@ -152,11 +162,11 @@
   .stage {
     width: 100%;
     height: 100%;
-    padding: 32px 40px;
+    padding: 36px 44px;
     display: flex;
     flex-direction: column;
-    gap: 22px;
-    background: var(--bg);
+    gap: 20px;
+    background: transparent;
   }
 
   /* ===== TOP BAR ===== */
@@ -169,8 +179,8 @@
   }
   .week-range {
     font-family: 'Inter', sans-serif;
-    font-weight: 800;
-    font-size: 68px;
+    font-weight: 900;
+    font-size: 70px;
     letter-spacing: -2px;
     line-height: 1;
     color: var(--ink);
@@ -179,37 +189,40 @@
   .switch-chip {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 18px;
+    gap: 11px;
+    padding: 13px 24px;
     background: var(--accent);
     color: var(--on-cell);
-    border-radius: 4px;
+    border-radius: 999px;
     font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-    font-size: 13px;
+    font-weight: 800;
+    font-size: 16px;
     letter-spacing: 2px;
     text-transform: uppercase;
     white-space: nowrap;
+    box-shadow: 0 14px 30px rgba(210, 86, 47, 0.30);
   }
   .switch-chip.hidden { display: none; }
   .switch-chip .dot {
-    width: 8px; height: 8px;
+    width: 11px; height: 11px;
+    border-radius: 999px;
     background: var(--on-cell);
     display: inline-block;
   }
 
   /* ===== OOR BANNER ===== */
   .oor-banner {
-    background: transparent;
-    border: 1px solid var(--accent);
-    border-left-width: 4px;
-    padding: 8px 16px;
+    background: var(--accent);
+    color: var(--on-cell);
+    border-radius: 14px;
+    padding: 12px 22px;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    font-weight: 600;
+    font-size: 18px;
+    font-weight: 700;
     letter-spacing: 1.5px;
-    color: var(--accent);
     text-transform: uppercase;
+    text-align: center;
+    box-shadow: 0 14px 30px rgba(210, 86, 47, 0.28);
   }
   .oor-banner.hidden { display: none; }
 
@@ -219,87 +232,117 @@
     flex: 1;
     min-height: 0;
     display: grid;
-    grid-template-columns: 120px repeat(7, 1fr);
-    grid-template-rows: 84px 1fr 1fr;
-    gap: 2px;
-    background: var(--border);
-    border: 2px solid var(--border);
-    border-radius: 2px;
-    overflow: hidden;
+    grid-template-columns: 150px repeat(7, 1fr);
+    grid-template-rows: 104px 1fr 1fr;
+    gap: 14px;
+    background: transparent;
+    border: none;
+    overflow: visible;
   }
   .grid.legacy {
-    grid-template-rows: 84px 1fr 1fr 1fr;
+    grid-template-rows: 104px 1fr 1fr 1fr;
   }
 
-  .grid .corner { background: var(--surface); }
+  .grid .corner { background: transparent; }
 
   .day-head {
-    background: var(--surface);
+    background: var(--card);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 20px;
+    box-shadow: var(--shadow-card);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2px;
+    gap: 1px;
     position: relative;
   }
   .day-head .dow {
     font-family: 'JetBrains Mono', monospace;
-    font-weight: 600;
-    font-size: 12px;
+    font-weight: 700;
+    font-size: 18px;
     letter-spacing: 3px;
     text-transform: uppercase;
     color: var(--ink-dim);
   }
   .day-head .dnum {
     font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-    font-size: 44px;
+    font-weight: 800;
+    font-size: 46px;
     line-height: 1;
     color: var(--ink);
     letter-spacing: -1px;
   }
   .day-head.today {
-    background: var(--accent);
+    background: linear-gradient(160deg, rgba(255,255,255,0.22), rgba(255,255,255,0) 46%), var(--accent);
+    border-color: transparent;
+    box-shadow: 0 14px 30px rgba(210, 86, 47, 0.30);
   }
   .day-head.today .dow { color: var(--on-cell); opacity: 0.85; }
   .day-head.today .dnum { color: var(--on-cell); }
 
   .row-label {
-    background: var(--panel);
+    background: var(--card);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 20px;
+    box-shadow: var(--shadow-card);
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 10px;
     text-align: center;
     padding: 0 8px;
   }
+  .row-label .rl-dot {
+    width: 18px; height: 18px;
+    border-radius: 999px;
+    background: var(--ink-dim);
+    box-shadow: 0 0 0 5px rgba(154, 149, 140, 0.16);
+  }
+  .row-label[data-shift="day"] .rl-dot {
+    background: #B0821E;
+    box-shadow: 0 0 0 5px rgba(176, 130, 30, 0.16);
+  }
+  .row-label[data-shift="night"] .rl-dot {
+    background: #3C68C8;
+    box-shadow: 0 0 0 5px rgba(60, 104, 200, 0.16);
+  }
+  .row-label[data-shift="dayOnly"] .rl-dot {
+    background: var(--accent);
+    box-shadow: 0 0 0 5px rgba(210, 86, 47, 0.16);
+  }
   .row-label .rl-main {
     font-family: 'JetBrains Mono', monospace;
-    font-weight: 700;
-    font-size: 14px;
+    font-weight: 800;
+    font-size: 22px;
     line-height: 1.1;
-    letter-spacing: 2.5px;
+    letter-spacing: 4px;
     text-transform: uppercase;
-    color: var(--ink-sub);
+    color: var(--ink);
   }
 
   .cell {
     position: relative;
-    padding: 12px 10px;
+    padding: 16px 18px;
+    border-radius: 22px;
     display: flex;
     flex-direction: column;
-    justify-content: stretch;
+    justify-content: center;
     align-items: stretch;
-    gap: 0;
+    gap: 12px;
     color: var(--on-cell);
     overflow: hidden;
+    box-shadow: var(--shadow-cell);
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 55%);
   }
-  .cell[data-color="blue"]   { background: var(--blue); }
-  .cell[data-color="orange"] { background: var(--orange); }
-  .cell[data-color="green"]  { background: var(--green); }
-  .cell[data-color="yellow"] { background: var(--yellow); }
-  .cell[data-color="purple"] { background: var(--purple); }
-  .cell[data-color="red"]    { background: var(--red); }
-  .cell[data-color=""]       { background: var(--surface); color: #B5B09F; }
+  .cell[data-color="blue"]   { background-color: var(--blue); }
+  .cell[data-color="orange"] { background-color: var(--orange); }
+  .cell[data-color="green"]  { background-color: var(--green); }
+  .cell[data-color="yellow"] { background-color: var(--yellow); }
+  .cell[data-color="purple"] { background-color: var(--purple); }
+  .cell[data-color="red"]    { background-color: var(--red); }
+  .cell[data-color=""]       { background-image: none; background: var(--card); color: #B5B09F; border: 1px solid rgba(0,0,0,0.05); box-shadow: var(--shadow-card); }
   .cell[data-color=""]::before {
     content: "—";
     font-family: 'JetBrains Mono', monospace;
@@ -352,12 +395,12 @@
     min-height: 0;
   }
   .person + .person {
-    border-top: 1px solid rgba(244, 242, 235, 0.25);
+    border-top: 1px solid rgba(255, 255, 255, 0.26);
   }
   .person .name {
     font-family: 'Inter', sans-serif;
-    font-weight: 700;
-    font-size: 26px;
+    font-weight: 800;
+    font-size: 28px;
     line-height: 1.02;
     letter-spacing: -0.3px;
     text-align: center;
@@ -377,19 +420,20 @@
     text-transform: uppercase;
   }
 
-  .cell.one-person .person .name { font-size: 32px; }
+  .cell.one-person .person .name { font-size: 34px; }
 
   /* ===== NEXT WEEK ===== */
   .nextweek {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 2px;
-    padding: 14px 18px 16px;
+    background: var(--card);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    border-radius: 22px;
+    padding: 18px 24px 20px;
     display: grid;
     grid-template-rows: auto 1fr;
     gap: 10px;
     height: 222px;
     flex-shrink: 0;
+    box-shadow: var(--shadow-card);
   }
   .nextweek-head {
     display: flex;
@@ -407,8 +451,8 @@
   }
   .nextweek-head .range {
     font-family: 'Inter', sans-serif;
-    font-weight: 700;
-    font-size: 22px;
+    font-weight: 800;
+    font-size: 26px;
     letter-spacing: -0.5px;
     color: var(--ink);
     text-transform: uppercase;
@@ -449,14 +493,15 @@
     display: grid;
     grid-template-columns: 84px repeat(7, 1fr);
     grid-template-rows: 22px minmax(44px, 1fr) minmax(44px, 1fr);
-    gap: 2px;
+    gap: 8px;
     min-height: 0;
   }
   .mini-grid.legacy {
     grid-template-rows: 22px minmax(36px, 1fr) minmax(36px, 1fr) minmax(36px, 1fr);
   }
   .mini-cell {
-    background: var(--bg);
+    background: var(--panel);
+    border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -484,14 +529,15 @@
   .mini-cell[data-color] {
     color: var(--on-cell);
     padding: 4px 0;
+    background-image: linear-gradient(180deg, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 60%);
   }
-  .mini-cell[data-color="blue"]   { background: var(--blue); }
-  .mini-cell[data-color="orange"] { background: var(--orange); }
-  .mini-cell[data-color="green"]  { background: var(--green); }
-  .mini-cell[data-color="yellow"] { background: var(--yellow); }
-  .mini-cell[data-color="purple"] { background: var(--purple); }
-  .mini-cell[data-color="red"]    { background: var(--red); }
-  .mini-cell[data-color=""]       { background: var(--bg); color: var(--ink-dim); }
+  .mini-cell[data-color="blue"]   { background-color: var(--blue); }
+  .mini-cell[data-color="orange"] { background-color: var(--orange); }
+  .mini-cell[data-color="green"]  { background-color: var(--green); }
+  .mini-cell[data-color="yellow"] { background-color: var(--yellow); }
+  .mini-cell[data-color="purple"] { background-color: var(--purple); }
+  .mini-cell[data-color="red"]    { background-color: var(--red); }
+  .mini-cell[data-color=""]       { background-image: none; background: var(--panel); color: var(--ink-dim); }
 
   .mini-cell.down-mini {
     background: var(--panel);
@@ -528,6 +574,54 @@
     border-radius: 2px;
     line-height: 1;
   }
+
+  /* ============================================================
+     "ALIVE" MOTION + 40-SECOND PROGRESS BAR  (cosmetic only)
+     ============================================================ */
+  @keyframes barFill   { from { width: 0%; }            to { width: 100%; } }
+  @keyframes barBreathe {
+    0%, 100% { height: 8px;  box-shadow: 0 -2px 10px rgba(26, 25, 21, 0); }
+    50%      { height: 11px; box-shadow: 0 -3px 14px rgba(26, 25, 21, 0.26); }
+  }
+  @keyframes breathe   { 0%, 100% { transform: scale(1); }      50% { transform: scale(1.25); } }
+  @keyframes floaty    { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2.5px); } }
+  @keyframes dnumPulse { 0%, 100% { transform: scale(1); }      50% { transform: scale(1.07); } }
+  @keyframes todayGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(210, 86, 47, 0), 0 14px 30px rgba(210, 86, 47, 0.26); }
+    50%      { box-shadow: 0 0 0 5px rgba(210, 86, 47, 0.12), 0 18px 38px rgba(210, 86, 47, 0.36); }
+  }
+  @keyframes chipGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(210, 86, 47, 0); }
+    50%      { box-shadow: 0 0 16px 2px rgba(210, 86, 47, 0.45); }
+  }
+
+  /* 40s building progress bar pinned to the very bottom edge */
+  .progress-track {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 8px;
+    background: rgba(26, 25, 21, 0.10);
+    overflow: hidden;
+    z-index: 20;
+    animation: barBreathe 2.6s ease-in-out infinite;
+  }
+  .progress-fill {
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0%;
+    background: var(--ink);
+    border-radius: 0 999px 999px 0;
+    overflow: hidden;
+    animation: barFill 40s linear infinite;
+  }
+
+  /* Pulsing switch alert + breathing dot */
+  .switch-chip:not(.hidden) { animation: chipGlow 2.6s ease-in-out infinite; }
+  .switch-chip .dot { animation: breathe 2.6s ease-in-out infinite; }
+
+  /* Living "today" column */
+  .day-head.today { animation: todayGlow 3s ease-in-out infinite; }
+  .day-head.today .dnum { animation: dnumPulse 3s ease-in-out infinite; }
 </style>
 </head>
 <body>
@@ -560,6 +654,7 @@
   </section>
 
 </div>
+<div class="progress-track"><div class="progress-fill"></div></div>
 </div>
 </div>
 
@@ -585,6 +680,7 @@ document.addEventListener('DOMContentLoaded', fitToViewport);
 [100, 300, 600, 1000, 2000, 4000].forEach(function(ms) {
   setTimeout(fitToViewport, ms);
 });
+
 
 /* === SCHEDULE DATA — edit yearly === */
 const SCHEDULE = {
@@ -4796,7 +4892,7 @@ function renderDownCell(isToday) {
   return div;
 }
 
-function renderCell(rawCell, isToday, ctx) {
+function renderCell(rawCell, isToday, ctx, col) {
   const cell = expandCell(rawCell, ctx);
   const div = document.createElement("div");
   div.className = "cell";
@@ -4805,9 +4901,14 @@ function renderCell(rawCell, isToday, ctx) {
   div.dataset.color = color;
   if (!cell || cell.length === 0) return div;
   if (cell.length === 1) div.classList.add("one-person");
+  /* Slow, staggered "alive" drift on the crew names (cosmetic). */
+  const c = (typeof col === "number") ? col : 0;
+  let pi = 0;
   for (const person of cell) {
     const row = document.createElement("div");
     row.className = "person";
+    row.style.animation = "floaty " + (5.6 + ((c + pi) % 3) * 0.7).toFixed(2) +
+      "s ease-in-out " + (-((c * 0.5) + pi * 0.9)).toFixed(2) + "s infinite";
     const n = document.createElement("div");
     n.className = "name";
     n.textContent = person.name;
@@ -4819,6 +4920,7 @@ function renderCell(rawCell, isToday, ctx) {
       row.appendChild(pill);
     }
     div.appendChild(row);
+    pi++;
   }
   return div;
 }
@@ -4917,7 +5019,8 @@ function render() {
   for (const s of ctx.rows) {
     const rl = document.createElement("div");
     rl.className = "row-label";
-    rl.innerHTML = `<div class="rl-main">${s.label}</div>`;
+    rl.dataset.shift = s.key;
+    rl.innerHTML = `<span class="rl-dot"></span><div class="rl-main">${s.label}</div>`;
     grid.appendChild(rl);
     const row = week.shifts[s.key] || [];
     for (let i = 0; i < 7; i++) {
@@ -4926,7 +5029,7 @@ function render() {
       if (DOWN_DAYS.has(dayIso)) {
         grid.appendChild(renderDownCell(i === todayCol));
       } else {
-        grid.appendChild(renderCell(row[i] || [], i === todayCol, ctx));
+        grid.appendChild(renderCell(row[i] || [], i === todayCol, ctx, i));
       }
     }
   }
@@ -5003,5 +5106,41 @@ function scheduleMidnightRefresh() {
 scheduleMidnightRefresh();
 setInterval(render, 60 * 60 * 1000);
 </script>
+<template id="__bundler_thumbnail" data-bg-color="#E8E5DB">
+  <svg viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1920" height="1080" fill="#E8E5DB"/>
+    <!-- title + switch pill -->
+    <rect x="100" y="78" width="640" height="92" rx="18" fill="#1A1915"/>
+    <rect x="1432" y="96" width="388" height="58" rx="29" fill="#D2562F"/>
+    <!-- left label cards -->
+    <rect x="100" y="250" width="180" height="140" rx="20" fill="#FFFFFF"/>
+    <rect x="100" y="410" width="180" height="220" rx="22" fill="#FFFFFF"/>
+    <rect x="100" y="650" width="180" height="220" rx="22" fill="#FFFFFF"/>
+    <!-- day header row (today = accent) -->
+    <rect x="320"  y="250" width="240" height="140" rx="18" fill="#FFFFFF"/>
+    <rect x="580"  y="250" width="240" height="140" rx="18" fill="#FFFFFF"/>
+    <rect x="840"  y="250" width="240" height="140" rx="18" fill="#FFFFFF"/>
+    <rect x="1100" y="250" width="240" height="140" rx="18" fill="#FFFFFF"/>
+    <rect x="1360" y="250" width="240" height="140" rx="18" fill="#D2562F"/>
+    <rect x="1620" y="250" width="240" height="140" rx="18" fill="#FFFFFF"/>
+    <!-- day shift row -->
+    <rect x="320"  y="410" width="240" height="220" rx="22" fill="#9C7E33"/>
+    <rect x="580"  y="410" width="240" height="220" rx="22" fill="#9C7E33"/>
+    <rect x="840"  y="410" width="240" height="220" rx="22" fill="#3E7B62"/>
+    <rect x="1100" y="410" width="240" height="220" rx="22" fill="#3E7B62"/>
+    <rect x="1360" y="410" width="240" height="220" rx="22" fill="#9C7E33"/>
+    <rect x="1620" y="410" width="240" height="220" rx="22" fill="#9C7E33"/>
+    <!-- night shift row -->
+    <rect x="320"  y="650" width="240" height="220" rx="22" fill="#B4663C"/>
+    <rect x="580"  y="650" width="240" height="220" rx="22" fill="#B4663C"/>
+    <rect x="840"  y="650" width="240" height="220" rx="22" fill="#44648C"/>
+    <rect x="1100" y="650" width="240" height="220" rx="22" fill="#44648C"/>
+    <rect x="1360" y="650" width="240" height="220" rx="22" fill="#B4663C"/>
+    <rect x="1620" y="650" width="240" height="220" rx="22" fill="#B4663C"/>
+    <!-- next-week panel + black progress bar -->
+    <rect x="100" y="902" width="1760" height="118" rx="22" fill="#FFFFFF"/>
+    <rect x="0" y="1060" width="900" height="16" rx="8" fill="#1A1915"/>
+  </svg>
+</template>
 </body>
 </html>
