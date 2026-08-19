@@ -8,55 +8,57 @@
 ================================================================================
   GRANDVIEW MAINTENANCE SCHEDULE
   Auto-rolling weekly display for OptiSigns / shop-floor TV.
-  Designed for 1920 × 1080 (1080p). Auto-scales to any 16:9 viewport.
+  Designed for 1920 x 1080 (1080p). Auto-scales to any 16:9 viewport.
 ================================================================================
 
-  HOW TO HOST ON GITHUB PAGES  (≈5 min)
+  HOW TO HOST ON GITHUB PAGES  (~5 min)
   -------------------------------------
-  1. github.com → new PUBLIC repo, e.g. "maintenance-schedule".
-  2. Add file → Upload files → drag this file in (keep name exactly
+  1. github.com -> new PUBLIC repo, e.g. "maintenance-schedule".
+  2. Add file -> Upload files -> drag this file in (keep name exactly
      "index.html"), commit to main.
-  3. Repo → Settings → Pages.
+  3. Repo -> Settings -> Pages.
        Source: "Deploy from a branch"
-       Branch: main  /  folder: "/ (root)"  → Save.
-  4. Wait ~60 sec. URL: https://<your-username>.github.io/maintenance-schedule/
+       Branch: main  /  folder: "/ (root)"  -> Save.
+  4. Wait ~60 sec. URL: https://YOUR-USERNAME.github.io/maintenance-schedule/
 
   OPTISIGNS WEBSITE APP SETTINGS (42" 1080p TV)
   ---------------------------------------------
-     URL:            https://<your-username>.github.io/maintenance-schedule/
+     URL:            https://YOUR-USERNAME.github.io/maintenance-schedule/
      Refresh Rate:   Every 60 minutes  (page also self-rolls at midnight)
-     Zoom:           100%    (leave at default — the page scales itself)
+     Zoom:           100%    (leave at default - the page scales itself)
      Fit to Screen:  ON      (or "Stretch" / "Fill screen")
      Disable Scroll: YES
-  The page measures whatever viewport OptiSigns gives it and auto-scales
-  the 1920×1080 canvas to fit, preserving 16:9.
 
   TESTING A FUTURE WEEK
   ---------------------
-  Append ?date=YYYY-MM-DD, e.g.  https://.../?date=2026-07-15
+  Append ?date=YYYY-MM-DD, e.g.  https://.../?date=2026-08-26
 
-  ============================================================================
-  TWO SCHEDULE FORMATS (important)
-  ----------------------------------------------------------------------------
-  This page renders TWO layouts depending on the week:
+  SCHEDULE FORMATS
+  ----------------
+  - LEGACY week (final old-schedule week, Jun 1-7 2026): 3 rows
+    (Day-Only / Day / Night), old crew, Prosser auto-pairing. A week is
+    legacy when its shifts object contains a dayOnly key.
+  - NEW weeks (Jun 8 2026 onward): 2 rows (Day / Night), everyone at
+    Grandview, both teammates listed explicitly in each cell.
+  - SPECIAL "downweek" (Aug 24-30 2026): custom row layout for the
+    Aug 26-28 plant down days. It carries type: "downweek" and a "rows"
+    array instead of "shifts"; each cell may span multiple day columns.
+    Regular schedule resumes Sat Aug 29.
 
-  • LEGACY week (the final old-schedule week, Jun 1–7 2026):
-      - 3 rows: Day-Only / Day / Night
-      - Old crew + old team colors
-      - "Prosser" tags shown, and a single Prosser person auto-pairs with
-        their old teammate (Kyle↔Alex, Collin↔Leo, Brad↔Bob, Martin↔Gabriel).
-      - A week is treated as legacy automatically when its `shifts` object
-        contains a `dayOnly` key.
-
-  • NEW week (Jun 8 2026 onward):
-      - 2 rows: Day / Night
-      - New crew + new team colors, everyone at Grandview
-      - No Prosser logic; each cell lists both teammates explicitly.
+  ROSTER (as of Aug 2026)
+  -----------------------
+     Kyle F. / Link B.     (blue)
+     Alex G. / Daniel C.   (green)
+     Martin Z. / Leo G.    (orange)
+     Jason W. / Gabriel Z. (yellow)
+  Changes: Noe M. was replaced by Jason W. on the yellow team; Daniel C.
+  took Jason W.'s old spot on the green team.
+  LEGACY-only names (Jun 1-7 week): Collin H., Brad P., Bob W., Noe M.
 
   UPDATING THE SCHEDULE NEXT YEAR
   -------------------------------
-  Scroll to:   /* === SCHEDULE DATA — edit yearly === */
-  For ongoing weeks use the NEW shape (no dayOnly, no prosser):
+  Scroll to:   /* === SCHEDULE DATA - edit yearly === */
+  For ongoing weeks use the NEW shape:
     {
       "start":  "YYYY-MM-DD",          // Monday
       "end":    "YYYY-MM-DD",          // Sunday
@@ -68,30 +70,11 @@
     }
   Each cell is an array of { "name": "Full Name" }.
 
-  SWITCH / TRANSITION BANNERS
-  ---------------------------
-  • A week with banner "MECHANICS" shows "MECHANICS DAY/NIGHT SWITCH THIS WEEK"
-    when it is the current week, and "...NEXT WEEK" on the prior week's
-    Next-Week panel.
-  • When the current week is the legacy week and the following week is on the
-    new format, the Next-Week panel also shows a "NEW SCHEDULE IN EFFECT" tag.
-
   SCHEDULED DOWN DAYS
   -------------------
-  Scroll to:   /* === DOWN DAYS === */  Add ISO dates (YYYY-MM-DD) to the set.
-  Currently empty.
-
-  MOTION (display polish)
-  -----------------------
-  • A 40-second progress bar fills along the very bottom edge, then repeats.
-  • The current-day column glows, the switch alert pulses, and the crew
-    names drift with a slow, staggered float so the board feels alive.
-    All purely cosmetic — none of it affects the schedule logic.
-
-  Supported names (case-sensitive):
-     NEW crew:    Kyle F. / Link B.   Alex G. / Jason W.
-                  Martin Z. / Leo G.  Noe M. / Gabriel Z.
-     LEGACY only: Collin H., Brad P., Bob W.  (used only in the Jun 1–7 week)
+  Scroll to:   /* === DOWN DAYS === */  Add ISO dates (YYYY-MM-DD) to the
+  set for simple single-day "SCHEDULED DOWN DAY" overrides. (The Aug 26-28
+  down days use the richer "downweek" layout instead.)
 ================================================================================
 -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -99,7 +82,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    /* Team colors — temporary-schedule jewel palette */
+    /* Team colors - temporary-schedule jewel palette */
     --blue:   #44648C;
     --orange: #B4663C;
     --green:  #3E7B62;
@@ -137,7 +120,7 @@
   html, body { background: var(--bg); }
   body { display: block; }
 
-  /* Fixed 1920x1080 stage — positioned and scaled via JS. */
+  /* Fixed 1920x1080 stage - positioned and scaled via JS. */
   .fit {
     position: fixed;
     inset: 0;
@@ -312,6 +295,18 @@
     background: var(--accent);
     box-shadow: 0 0 0 5px rgba(210, 86, 47, 0.16);
   }
+  .row-label[data-dot="green"] .rl-dot {
+    background: var(--green);
+    box-shadow: 0 0 0 5px rgba(62, 123, 98, 0.16);
+  }
+  .row-label[data-dot="yellow"] .rl-dot {
+    background: var(--yellow);
+    box-shadow: 0 0 0 5px rgba(156, 126, 51, 0.16);
+  }
+  .row-label[data-dot="blue"] .rl-dot {
+    background: var(--blue);
+    box-shadow: 0 0 0 5px rgba(68, 100, 140, 0.16);
+  }
   .row-label .rl-main {
     font-family: 'JetBrains Mono', monospace;
     font-weight: 800;
@@ -320,6 +315,15 @@
     letter-spacing: 4px;
     text-transform: uppercase;
     color: var(--ink);
+  }
+  .row-label .rl-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--ink-dim);
+    margin-top: -6px;
   }
 
   .cell {
@@ -344,12 +348,61 @@
   .cell[data-color="red"]    { background-color: var(--red); }
   .cell[data-color=""]       { background-image: none; background: var(--card); color: #B5B09F; border: 1px solid rgba(0,0,0,0.05); box-shadow: var(--shadow-card); }
   .cell[data-color=""]::before {
-    content: "—";
+    content: "\2014";
     font-family: 'JetBrains Mono', monospace;
     font-size: 28px; font-weight: 500;
   }
 
-  /* Scheduled Down Day — full-cell treatment */
+  /* Down-week special cells */
+  .cell.off-cell {
+    background: transparent;
+    background-image: none;
+    border: 2px dashed #C6C1B0;
+    box-shadow: none;
+    color: var(--ink-dim);
+    justify-content: center;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 20px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+  }
+  .cell .big-line {
+    font-family: 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 32px;
+    letter-spacing: -0.3px;
+    line-height: 1.05;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .cell .sub-line {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-align: center;
+    opacity: 0.85;
+    margin-top: -2px;
+  }
+  .cell .shift-tag {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: rgba(26, 25, 21, 0.40);
+    color: var(--on-cell);
+    padding: 3px 8px 4px;
+    border-radius: 3px;
+  }
+
+  /* Scheduled Down Day - full-cell treatment */
   .cell.down-cell {
     background: var(--panel);
     background-image: repeating-linear-gradient(
@@ -574,6 +627,13 @@
     border-radius: 2px;
     line-height: 1;
   }
+  .mini-cell.span-note {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    white-space: nowrap;
+  }
 
   /* ============================================================
      "ALIVE" MOTION + 40-SECOND PROGRESS BAR  (cosmetic only)
@@ -630,10 +690,10 @@
 <div class="stage">
 
   <header class="topbar">
-    <h1 class="week-range" id="week-range">—</h1>
+    <h1 class="week-range" id="week-range">-</h1>
     <div class="switch-chip hidden" id="switch-chip">
       <span class="dot"></span>
-      <span id="switch-text">—</span>
+      <span id="switch-text">-</span>
     </div>
   </header>
 
@@ -644,7 +704,7 @@
   <section class="nextweek">
     <div class="nextweek-head">
       <span class="tag">Next Week</span>
-      <span class="range" id="next-range">—</span>
+      <span class="range" id="next-range">-</span>
       <span class="next-flags">
         <span class="mini-switch hidden" id="next-switch">Switch Next Week</span>
         <span class="new-sched hidden" id="next-newsched">New Schedule In Effect</span>
@@ -667,11 +727,9 @@ function fitToViewport() {
   const vh = window.innerHeight || document.documentElement.clientHeight || screen.height || 1080;
   if (vw < 100 || vh < 100) return;
   const scale = Math.min(vw / 1920, vh / 1080);
-  const scaledW = 1920 * scale;
-  const scaledH = 1080 * scale;
-  const left = (vw - scaledW) / 2;
-  const top  = (vh - scaledH) / 2;
-  scaler.style.transform = `translate(${left}px, ${top}px) scale(${scale})`;
+  const left = (vw - 1920 * scale) / 2;
+  const top  = (vh - 1080 * scale) / 2;
+  scaler.style.transform = "translate(" + left + "px, " + top + "px) scale(" + scale + ")";
 }
 fitToViewport();
 window.addEventListener('resize', fitToViewport);
@@ -682,7 +740,7 @@ document.addEventListener('DOMContentLoaded', fitToViewport);
 });
 
 
-/* === SCHEDULE DATA — edit yearly === */
+/* === SCHEDULE DATA - edit yearly === */
 const SCHEDULE = {
   "weeks": [
     {
@@ -827,7 +885,7 @@ const SCHEDULE = {
         "day": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -835,7 +893,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -846,7 +904,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -854,12 +912,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -867,7 +925,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -875,7 +933,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -953,7 +1011,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -961,12 +1019,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -974,7 +1032,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -985,7 +1043,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -993,7 +1051,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1001,7 +1059,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ]
         ],
@@ -1073,7 +1131,7 @@ const SCHEDULE = {
         "day": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1081,7 +1139,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1092,7 +1150,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1100,12 +1158,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -1113,7 +1171,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1121,7 +1179,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1199,7 +1257,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1207,12 +1265,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1220,7 +1278,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1231,7 +1289,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1239,7 +1297,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1247,7 +1305,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ]
         ],
@@ -1377,7 +1435,7 @@ const SCHEDULE = {
         "night": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1385,7 +1443,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1396,7 +1454,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1404,12 +1462,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -1417,7 +1475,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1425,7 +1483,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1503,7 +1561,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1511,12 +1569,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1524,7 +1582,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1535,7 +1593,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1543,7 +1601,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1551,7 +1609,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ]
         ]
@@ -1623,7 +1681,7 @@ const SCHEDULE = {
         "night": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1631,7 +1689,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1642,7 +1700,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1650,12 +1708,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -1663,7 +1721,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1671,7 +1729,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1749,7 +1807,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1757,12 +1815,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1770,7 +1828,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1781,7 +1839,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1789,7 +1847,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1797,7 +1855,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ]
         ]
@@ -1811,7 +1869,7 @@ const SCHEDULE = {
         "day": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1819,7 +1877,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1830,7 +1888,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1838,12 +1896,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -1851,7 +1909,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1859,7 +1917,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1937,7 +1995,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1945,12 +2003,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1958,7 +2016,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -1969,7 +2027,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1977,7 +2035,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -1985,7 +2043,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ]
         ],
@@ -2057,7 +2115,7 @@ const SCHEDULE = {
         "day": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2065,7 +2123,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2076,7 +2134,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -2084,12 +2142,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -2097,7 +2155,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2105,7 +2163,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2175,125 +2233,144 @@ const SCHEDULE = {
     {
       "start": "2026-08-24",
       "end": "2026-08-30",
-      "banner": null,
-      "shifts": {
-        "day": [
-          [
+      "banner": "DOWNDAYS",
+      "type": "downweek",
+      "chip": "Down Days Aug 26–28 · Regular Schedule Sat 29",
+      "rows": [
+        {
+          "label": "Grandview",
+          "sub": "Days",
+          "short": "GVIEW",
+          "dot": "green",
+          "cells": [
             {
-              "name": "Alex G."
+              "span": 1,
+              "color": "green",
+              "names": [
+                "Alex G.",
+                "Daniel C."
+              ]
             },
             {
-              "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Alex G."
+              "span": 1,
+              "color": "green",
+              "names": [
+                "Alex G.",
+                "Daniel C."
+              ]
             },
             {
-              "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
+              "span": 3,
+              "color": "green",
+              "big": "Alex · Cruz · Gabriel · Woody",
+              "sub": "Days — Grandview",
+              "mini": "ALEX · CRUZ · GABRIEL · WOODY"
             },
             {
-              "name": "Gabriel Z."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
+              "span": 1,
+              "color": "green",
+              "names": [
+                "Alex G.",
+                "Daniel C."
+              ]
             },
             {
-              "name": "Gabriel Z."
-            }
-          ],
-          [
-            {
-              "name": "Alex G."
-            },
-            {
-              "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Alex G."
-            },
-            {
-              "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Alex G."
-            },
-            {
-              "name": "Jason W."
+              "span": 1,
+              "color": "green",
+              "names": [
+                "Alex G.",
+                "Daniel C."
+              ]
             }
           ]
-        ],
-        "night": [
-          [
+        },
+        {
+          "label": "Prosser",
+          "sub": "Days",
+          "short": "PROSSER",
+          "dot": "yellow",
+          "cells": [
             {
-              "name": "Kyle F."
+              "span": 1,
+              "empty": true
             },
             {
-              "name": "Link B."
-            }
-          ],
-          [
-            {
-              "name": "Kyle F."
+              "span": 1,
+              "empty": true
             },
             {
-              "name": "Link B."
-            }
-          ],
-          [
-            {
-              "name": "Martin Z."
+              "span": 3,
+              "color": "yellow",
+              "big": "Leo · Martin · Manny",
+              "sub": "Days — Prosser",
+              "mini": "LEO · MARTIN · MANNY"
             },
             {
-              "name": "Leo G."
-            }
-          ],
-          [
-            {
-              "name": "Martin Z."
+              "span": 1,
+              "empty": true
             },
             {
-              "name": "Leo G."
-            }
-          ],
-          [
-            {
-              "name": "Kyle F."
-            },
-            {
-              "name": "Link B."
-            }
-          ],
-          [
-            {
-              "name": "Kyle F."
-            },
-            {
-              "name": "Link B."
-            }
-          ],
-          [
-            {
-              "name": "Kyle F."
-            },
-            {
-              "name": "Link B."
+              "span": 1,
+              "empty": true
             }
           ]
-        ]
-      }
+        },
+        {
+          "label": "Link & Kyle",
+          "sub": "",
+          "short": "L & K",
+          "dot": "blue",
+          "cells": [
+            {
+              "span": 1,
+              "color": "blue",
+              "names": [
+                "Kyle F.",
+                "Link B."
+              ],
+              "tag": "Night"
+            },
+            {
+              "span": 1,
+              "color": "blue",
+              "names": [
+                "Kyle F.",
+                "Link B."
+              ],
+              "tag": "Night"
+            },
+            {
+              "span": 1,
+              "off": true
+            },
+            {
+              "span": 2,
+              "color": "blue",
+              "big": "Back on Days",
+              "sub": "Day Shift",
+              "mini": "BACK ON DAYS"
+            },
+            {
+              "span": 1,
+              "color": "blue",
+              "names": [
+                "Kyle F.",
+                "Link B."
+              ],
+              "tag": "Night"
+            },
+            {
+              "span": 1,
+              "color": "blue",
+              "names": [
+                "Kyle F.",
+                "Link B."
+              ],
+              "tag": "Night"
+            }
+          ]
+        }
+      ]
     },
     {
       "start": "2026-08-31",
@@ -2361,7 +2438,7 @@ const SCHEDULE = {
         "night": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2369,7 +2446,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2380,7 +2457,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -2388,12 +2465,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -2401,7 +2478,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2409,7 +2486,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2487,7 +2564,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -2495,12 +2572,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2508,7 +2585,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2519,7 +2596,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -2527,7 +2604,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -2535,7 +2612,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ]
         ]
@@ -2607,7 +2684,7 @@ const SCHEDULE = {
         "night": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2615,7 +2692,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2626,7 +2703,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -2634,12 +2711,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -2647,7 +2724,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2655,7 +2732,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2733,7 +2810,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -2741,12 +2818,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2754,7 +2831,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2765,7 +2842,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -2773,7 +2850,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -2781,7 +2858,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ]
         ]
@@ -2795,7 +2872,7 @@ const SCHEDULE = {
         "day": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2803,7 +2880,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2814,7 +2891,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -2822,12 +2899,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -2835,7 +2912,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2843,7 +2920,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2921,7 +2998,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -2929,12 +3006,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2942,7 +3019,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -2953,7 +3030,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -2961,7 +3038,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -2969,7 +3046,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ]
         ],
@@ -3041,7 +3118,7 @@ const SCHEDULE = {
         "day": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3049,7 +3126,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3060,7 +3137,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3068,12 +3145,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -3081,7 +3158,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3089,7 +3166,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3167,7 +3244,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3175,12 +3252,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3188,7 +3265,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3199,7 +3276,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3207,7 +3284,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3215,7 +3292,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ]
         ],
@@ -3345,7 +3422,7 @@ const SCHEDULE = {
         "night": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3353,7 +3430,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3364,7 +3441,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3372,12 +3449,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -3385,7 +3462,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3393,7 +3470,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3471,7 +3548,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3479,12 +3556,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3492,7 +3569,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3503,7 +3580,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3511,7 +3588,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3519,7 +3596,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ]
         ]
@@ -3591,7 +3668,7 @@ const SCHEDULE = {
         "night": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3599,7 +3676,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3610,7 +3687,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3618,12 +3695,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -3631,7 +3708,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3639,7 +3716,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3717,7 +3794,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3725,12 +3802,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3738,7 +3815,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3749,7 +3826,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3757,7 +3834,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3765,7 +3842,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ]
         ]
@@ -3779,7 +3856,7 @@ const SCHEDULE = {
         "day": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3787,7 +3864,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3798,7 +3875,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3806,12 +3883,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -3819,7 +3896,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3827,7 +3904,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3905,7 +3982,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3913,12 +3990,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3926,7 +4003,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -3937,7 +4014,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3945,7 +4022,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -3953,7 +4030,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ]
         ],
@@ -4025,7 +4102,7 @@ const SCHEDULE = {
         "day": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4033,7 +4110,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4044,7 +4121,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -4052,12 +4129,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -4065,7 +4142,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4073,7 +4150,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4151,7 +4228,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -4159,12 +4236,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4172,7 +4249,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4183,7 +4260,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -4191,7 +4268,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -4199,7 +4276,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ]
         ],
@@ -4329,7 +4406,7 @@ const SCHEDULE = {
         "night": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4337,7 +4414,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4348,7 +4425,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -4356,12 +4433,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -4369,7 +4446,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4377,7 +4454,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4455,7 +4532,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -4463,12 +4540,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4476,7 +4553,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4487,7 +4564,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -4495,7 +4572,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -4503,7 +4580,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ]
         ]
@@ -4575,7 +4652,7 @@ const SCHEDULE = {
         "night": [
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4583,7 +4660,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4594,7 +4671,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -4602,12 +4679,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
+              "name": "Daniel C."
+            }
+          ],
+          [
+            {
               "name": "Jason W."
-            }
-          ],
-          [
-            {
-              "name": "Noe M."
             },
             {
               "name": "Gabriel Z."
@@ -4615,7 +4692,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4623,7 +4700,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4701,7 +4778,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -4709,12 +4786,12 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4722,7 +4799,7 @@ const SCHEDULE = {
           ],
           [
             {
-              "name": "Noe M."
+              "name": "Jason W."
             },
             {
               "name": "Gabriel Z."
@@ -4733,7 +4810,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -4741,7 +4818,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ],
           [
@@ -4749,7 +4826,7 @@ const SCHEDULE = {
               "name": "Alex G."
             },
             {
-              "name": "Jason W."
+              "name": "Daniel C."
             }
           ]
         ]
@@ -4760,24 +4837,25 @@ const SCHEDULE = {
 
 /* === DOWN DAYS ===
    Any date in this set overrides the schedule and renders as
-   "SCHEDULED DOWN DAY". Use ISO dates (YYYY-MM-DD). Currently empty. */
+   "SCHEDULED DOWN DAY". Use ISO dates (YYYY-MM-DD). Currently empty -
+   the Aug 26-28 down days use the "downweek" layout in SCHEDULE. */
 const DOWN_DAYS = new Set([]);
 
 /* ===== NEW schedule maps (Jun 8 2026 onward) ===== */
 const NAME_TO_COLOR = {
   "Kyle F.": "blue",    "Link B.": "blue",
-  "Alex G.": "green",   "Jason W.": "green",
+  "Alex G.": "green",   "Daniel C.": "green",
   "Martin Z.": "orange","Leo G.": "orange",
-  "Noe M.": "yellow",   "Gabriel Z.": "yellow"
+  "Jason W.": "yellow", "Gabriel Z.": "yellow"
 };
 const NAME_TO_INITIALS = {
   "Kyle F.": "KF",   "Link B.": "LB",
-  "Alex G.": "AG",   "Jason W.": "JW",
+  "Alex G.": "AG",   "Daniel C.": "DC",
   "Martin Z.": "MZ", "Leo G.": "LG",
-  "Noe M.": "NM",    "Gabriel Z.": "GZ"
+  "Jason W.": "JW",  "Gabriel Z.": "GZ"
 };
 
-/* ===== LEGACY maps (final old-schedule week, Jun 1–7 2026) ===== */
+/* ===== LEGACY maps (final old-schedule week, Jun 1-7 2026) ===== */
 const LEGACY_NAME_TO_COLOR = {
   "Kyle F.": "blue",    "Alex G.": "blue",
   "Collin H.": "orange","Leo G.": "orange",
@@ -4807,15 +4885,16 @@ const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov
 function parseISO(iso) { return new Date(iso + "T12:00:00"); }
 function fmtDate(iso) {
   const d = parseISO(iso);
-  return `${MONTHS[d.getMonth()]} ${d.getDate()}`;
+  return MONTHS[d.getMonth()] + " " + d.getDate();
 }
 function isoForLocalDate(d) {
   const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
-  return `${y}-${m}-${day}`;
+  return y + "-" + m + "-" + day;
 }
 function getEffectiveDate() {
+  if (window.__TEST_DATE) return parseISO(window.__TEST_DATE);
   const params = new URLSearchParams(location.search);
   const d = params.get("date");
   if (d && /^\d{4}-\d{2}-\d{2}$/.test(d)) return parseISO(d);
@@ -4861,12 +4940,11 @@ function contextFor(week) {
   };
 }
 
-/* Legacy weeks auto-pair a single Prosser person with their old teammate.
-   New weeks already list both people, so just return the cell. */
+/* Legacy weeks auto-pair a single Prosser person with their old teammate. */
 function expandCell(cell, ctx) {
   if (!cell || cell.length === 0) return [];
   if (!ctx.legacy || !ctx.teammate) return cell.slice();
-  const names = new Set(cell.map(p => p.name));
+  const names = new Set(cell.map(function(p){ return p.name; }));
   const out = cell.slice();
   for (const p of cell) {
     if (p.prosser) {
@@ -4892,6 +4970,18 @@ function renderDownCell(isToday) {
   return div;
 }
 
+function personRow(name, col, pi) {
+  const row = document.createElement("div");
+  row.className = "person";
+  row.style.animation = "floaty " + (5.6 + ((col + pi) % 3) * 0.7).toFixed(2) +
+    "s ease-in-out " + (-((col * 0.5) + pi * 0.9)).toFixed(2) + "s infinite";
+  const n = document.createElement("div");
+  n.className = "name";
+  n.textContent = name;
+  row.appendChild(n);
+  return row;
+}
+
 function renderCell(rawCell, isToday, ctx, col) {
   const cell = expandCell(rawCell, ctx);
   const div = document.createElement("div");
@@ -4901,18 +4991,10 @@ function renderCell(rawCell, isToday, ctx, col) {
   div.dataset.color = color;
   if (!cell || cell.length === 0) return div;
   if (cell.length === 1) div.classList.add("one-person");
-  /* Slow, staggered "alive" drift on the crew names (cosmetic). */
   const c = (typeof col === "number") ? col : 0;
   let pi = 0;
   for (const person of cell) {
-    const row = document.createElement("div");
-    row.className = "person";
-    row.style.animation = "floaty " + (5.6 + ((c + pi) % 3) * 0.7).toFixed(2) +
-      "s ease-in-out " + (-((c * 0.5) + pi * 0.9)).toFixed(2) + "s infinite";
-    const n = document.createElement("div");
-    n.className = "name";
-    n.textContent = person.name;
-    row.appendChild(n);
+    const row = personRow(person.name, c, pi);
     if (ctx.legacy && person.prosser) {
       const pill = document.createElement("div");
       pill.className = "prosser-tag";
@@ -4938,7 +5020,7 @@ function renderMiniCell(rawCell, ctx) {
   div.className = "mini-cell";
   const color = colorOf(cell, ctx);
   if (!color) {
-    div.textContent = "–";
+    div.textContent = "\u2013";
     return div;
   }
   div.dataset.color = color;
@@ -4959,6 +5041,130 @@ function renderMiniCell(rawCell, ctx) {
   return div;
 }
 
+function appendDayHeads(grid, week, todayCol) {
+  const corner = document.createElement("div");
+  corner.className = "corner";
+  grid.appendChild(corner);
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(parseISO(week.start).getTime() + i * 86400000);
+    const head = document.createElement("div");
+    head.className = "day-head" + (i === todayCol ? " today" : "");
+    head.innerHTML = '<div class="dow">' + DOW[i] + '</div><div class="dnum">' + d.getDate() + '</div>';
+    grid.appendChild(head);
+  }
+}
+
+/* ===== SPECIAL "DOWNWEEK" RENDERING (Aug 24-30 2026) ===== */
+function specialNamesCell(c, col) {
+  const div = document.createElement("div");
+  div.className = "cell";
+  div.dataset.color = c.color;
+  if (c.names.length === 1) div.classList.add("one-person");
+  for (let pi = 0; pi < c.names.length; pi++) {
+    div.appendChild(personRow(c.names[pi], col, pi));
+  }
+  if (c.tag) {
+    const t = document.createElement("div");
+    t.className = "shift-tag";
+    t.textContent = c.tag;
+    div.appendChild(t);
+  }
+  return div;
+}
+
+function renderSpecialGrid(grid, week, todayCol) {
+  grid.className = "grid legacy";
+  grid.innerHTML = "";
+  appendDayHeads(grid, week, todayCol);
+  for (const row of week.rows) {
+    const rl = document.createElement("div");
+    rl.className = "row-label";
+    rl.dataset.dot = row.dot;
+    let h = '<span class="rl-dot"></span><div class="rl-main">' + row.label + '</div>';
+    if (row.sub) h += '<div class="rl-sub">' + row.sub + '</div>';
+    rl.innerHTML = h;
+    grid.appendChild(rl);
+    let col = 0;
+    for (const c of row.cells) {
+      let div;
+      if (c.off) {
+        div = document.createElement("div");
+        div.className = "cell off-cell";
+        div.textContent = "Off";
+      } else if (c.empty) {
+        div = document.createElement("div");
+        div.className = "cell off-cell";
+        div.textContent = "\u2014";
+      } else if (c.big) {
+        div = document.createElement("div");
+        div.className = "cell";
+        div.dataset.color = c.color;
+        const b = document.createElement("div");
+        b.className = "big-line";
+        b.textContent = c.big;
+        div.appendChild(b);
+        if (c.sub) {
+          const s2 = document.createElement("div");
+          s2.className = "sub-line";
+          s2.textContent = c.sub;
+          div.appendChild(s2);
+        }
+      } else {
+        div = specialNamesCell(c, col);
+      }
+      if (c.span > 1) div.style.gridColumn = "span " + c.span;
+      grid.appendChild(div);
+      col += c.span || 1;
+    }
+  }
+}
+
+function renderSpecialMini(nxt, week) {
+  nxt.className = "mini-grid legacy";
+  const corner2 = document.createElement("div");
+  corner2.className = "mini-cell mhead";
+  nxt.appendChild(corner2);
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(parseISO(week.start).getTime() + i * 86400000);
+    const head = document.createElement("div");
+    head.className = "mini-cell mhead";
+    head.textContent = DOW[i] + " " + d.getDate();
+    nxt.appendChild(head);
+  }
+  for (const row of week.rows) {
+    const rl = document.createElement("div");
+    rl.className = "mini-cell mrl";
+    rl.textContent = row.short || row.label;
+    nxt.appendChild(rl);
+    for (const c of row.cells) {
+      const div = document.createElement("div");
+      div.className = "mini-cell";
+      if (c.off) {
+        div.classList.add("down-mini");
+        div.textContent = "OFF";
+      } else if (c.empty) {
+        div.textContent = "\u2013";
+      } else if (c.big) {
+        div.dataset.color = c.color;
+        div.classList.add("span-note");
+        div.textContent = (c.mini || c.big).toUpperCase();
+      } else {
+        div.dataset.color = c.color;
+        for (const name of c.names) {
+          const r = document.createElement("div");
+          r.className = "ini-row";
+          const ini = document.createElement("span");
+          ini.textContent = NAME_TO_INITIALS[name] || "";
+          r.appendChild(ini);
+          div.appendChild(r);
+        }
+      }
+      if (c.span > 1) div.style.gridColumn = "span " + c.span;
+      nxt.appendChild(div);
+    }
+  }
+}
+
 function render() {
   const now = getEffectiveDate();
   const iso = isoForLocalDate(now);
@@ -4968,27 +5174,30 @@ function render() {
   const oor = document.getElementById("oor-banner");
   if (loc.mode === "before") {
     oor.classList.remove("hidden");
-    oor.textContent = "Schedule starts " + fmtDate(weeks[0].start) + " — showing first week";
+    oor.textContent = "Schedule starts " + fmtDate(weeks[0].start) + " - showing first week";
   } else if (loc.mode === "after") {
     oor.classList.remove("hidden");
-    oor.textContent = "Schedule ended " + fmtDate(weeks[weeks.length - 1].end) + " — update required";
+    oor.textContent = "Schedule ended " + fmtDate(weeks[weeks.length - 1].end) + " - update required";
   } else {
     oor.classList.add("hidden");
   }
 
   const week = weeks[loc.index];
   const nextWeek = weeks[loc.index + 1] || null;
-  const ctx = contextFor(week);
+  const special = week.type === "downweek";
+  const ctx = special ? null : contextFor(week);
 
   document.getElementById("week-range").textContent =
-    fmtDate(week.start) + " — " + fmtDate(week.end);
+    fmtDate(week.start) + " \u2014 " + fmtDate(week.end);
 
-  /* This-week banner: only the mechanic day/night switch is announced. */
   const chip = document.getElementById("switch-chip");
   const switchText = document.getElementById("switch-text");
   if (week.banner === "MECHANICS") {
     chip.classList.remove("hidden");
     switchText.textContent = "Mechanics Day/Night Switch This Week";
+  } else if (week.chip) {
+    chip.classList.remove("hidden");
+    switchText.textContent = week.chip;
   } else {
     chip.classList.add("hidden");
   }
@@ -5001,35 +5210,27 @@ function render() {
   }
 
   const grid = document.getElementById("main-grid");
-  grid.className = "grid" + (ctx.legacy ? " legacy" : "");
-  grid.innerHTML = "";
-
-  const corner = document.createElement("div");
-  corner.className = "corner";
-  grid.appendChild(corner);
-
-  for (let i = 0; i < 7; i++) {
-    const d = new Date(parseISO(week.start).getTime() + i * 86400000);
-    const head = document.createElement("div");
-    head.className = "day-head" + (i === todayCol ? " today" : "");
-    head.innerHTML = `<div class="dow">${DOW[i]}</div><div class="dnum">${d.getDate()}</div>`;
-    grid.appendChild(head);
-  }
-
-  for (const s of ctx.rows) {
-    const rl = document.createElement("div");
-    rl.className = "row-label";
-    rl.dataset.shift = s.key;
-    rl.innerHTML = `<span class="rl-dot"></span><div class="rl-main">${s.label}</div>`;
-    grid.appendChild(rl);
-    const row = week.shifts[s.key] || [];
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(parseISO(week.start).getTime() + i * 86400000);
-      const dayIso = isoForLocalDate(d);
-      if (DOWN_DAYS.has(dayIso)) {
-        grid.appendChild(renderDownCell(i === todayCol));
-      } else {
-        grid.appendChild(renderCell(row[i] || [], i === todayCol, ctx, i));
+  if (special) {
+    renderSpecialGrid(grid, week, todayCol);
+  } else {
+    grid.className = "grid" + (ctx.legacy ? " legacy" : "");
+    grid.innerHTML = "";
+    appendDayHeads(grid, week, todayCol);
+    for (const s of ctx.rows) {
+      const rl = document.createElement("div");
+      rl.className = "row-label";
+      rl.dataset.shift = s.key;
+      rl.innerHTML = '<span class="rl-dot"></span><div class="rl-main">' + s.label + '</div>';
+      grid.appendChild(rl);
+      const row = week.shifts[s.key] || [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(parseISO(week.start).getTime() + i * 86400000);
+        const dayIso = isoForLocalDate(d);
+        if (DOWN_DAYS.has(dayIso)) {
+          grid.appendChild(renderDownCell(i === todayCol));
+        } else {
+          grid.appendChild(renderCell(row[i] || [], i === todayCol, ctx, i));
+        }
       }
     }
   }
@@ -5042,49 +5243,54 @@ function render() {
   nxt.innerHTML = "";
 
   if (nextWeek) {
-    const nctx = contextFor(nextWeek);
-    nxtRange.textContent = fmtDate(nextWeek.start) + " — " + fmtDate(nextWeek.end);
+    nxtRange.textContent = fmtDate(nextWeek.start) + " \u2014 " + fmtDate(nextWeek.end);
 
-    /* Mechanic day/night switch starting next week. */
     if (nextWeek.banner === "MECHANICS") {
       nxtSwitch.classList.remove("hidden");
       nxtSwitch.textContent = "Mechanics Day/Night Switch Next Week";
+    } else if (nextWeek.type === "downweek") {
+      nxtSwitch.classList.remove("hidden");
+      nxtSwitch.textContent = "Down Days Next Week";
     } else {
       nxtSwitch.classList.add("hidden");
     }
 
-    /* New schedule begins next week (current week is the final legacy week). */
-    if (ctx.legacy && !nctx.legacy) {
+    const nctx = (nextWeek.type === "downweek") ? null : contextFor(nextWeek);
+
+    if (ctx && ctx.legacy && nctx && !nctx.legacy) {
       nxtNewSched.classList.remove("hidden");
     } else {
       nxtNewSched.classList.add("hidden");
     }
 
-    nxt.className = "mini-grid" + (nctx.legacy ? " legacy" : "");
-
-    const corner2 = document.createElement("div");
-    corner2.className = "mini-cell mhead";
-    nxt.appendChild(corner2);
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(parseISO(nextWeek.start).getTime() + i * 86400000);
-      const head = document.createElement("div");
-      head.className = "mini-cell mhead";
-      head.textContent = DOW[i] + " " + d.getDate();
-      nxt.appendChild(head);
-    }
-    for (const s of nctx.rows) {
-      const rl = document.createElement("div");
-      rl.className = "mini-cell mrl";
-      rl.textContent = s.label;
-      nxt.appendChild(rl);
-      const row = nextWeek.shifts[s.key] || [];
+    if (nextWeek.type === "downweek") {
+      renderSpecialMini(nxt, nextWeek);
+    } else {
+      nxt.className = "mini-grid" + (nctx.legacy ? " legacy" : "");
+      const corner2 = document.createElement("div");
+      corner2.className = "mini-cell mhead";
+      nxt.appendChild(corner2);
       for (let i = 0; i < 7; i++) {
         const d = new Date(parseISO(nextWeek.start).getTime() + i * 86400000);
-        const dayIso = isoForLocalDate(d);
-        if (DOWN_DAYS.has(dayIso)) {
-          nxt.appendChild(renderDownMiniCell());
-        } else {
-          nxt.appendChild(renderMiniCell(row[i] || [], nctx));
+        const head = document.createElement("div");
+        head.className = "mini-cell mhead";
+        head.textContent = DOW[i] + " " + d.getDate();
+        nxt.appendChild(head);
+      }
+      for (const s of nctx.rows) {
+        const rl = document.createElement("div");
+        rl.className = "mini-cell mrl";
+        rl.textContent = s.label;
+        nxt.appendChild(rl);
+        const row = nextWeek.shifts[s.key] || [];
+        for (let i = 0; i < 7; i++) {
+          const d = new Date(parseISO(nextWeek.start).getTime() + i * 86400000);
+          const dayIso = isoForLocalDate(d);
+          if (DOWN_DAYS.has(dayIso)) {
+            nxt.appendChild(renderDownMiniCell());
+          } else {
+            nxt.appendChild(renderMiniCell(row[i] || [], nctx));
+          }
         }
       }
     }
@@ -5101,7 +5307,7 @@ function scheduleMidnightRefresh() {
   const now = new Date();
   const t = new Date(now);
   t.setHours(24, 0, 30, 0);
-  setTimeout(() => { render(); scheduleMidnightRefresh(); }, t - now);
+  setTimeout(function() { render(); scheduleMidnightRefresh(); }, t - now);
 }
 scheduleMidnightRefresh();
 setInterval(render, 60 * 60 * 1000);
@@ -5109,35 +5315,29 @@ setInterval(render, 60 * 60 * 1000);
 <template id="__bundler_thumbnail" data-bg-color="#E8E5DB">
   <svg viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
     <rect width="1920" height="1080" fill="#E8E5DB"/>
-    <!-- title + switch pill -->
     <rect x="100" y="78" width="640" height="92" rx="18" fill="#1A1915"/>
     <rect x="1432" y="96" width="388" height="58" rx="29" fill="#D2562F"/>
-    <!-- left label cards -->
     <rect x="100" y="250" width="180" height="140" rx="20" fill="#FFFFFF"/>
     <rect x="100" y="410" width="180" height="220" rx="22" fill="#FFFFFF"/>
     <rect x="100" y="650" width="180" height="220" rx="22" fill="#FFFFFF"/>
-    <!-- day header row (today = accent) -->
     <rect x="320"  y="250" width="240" height="140" rx="18" fill="#FFFFFF"/>
     <rect x="580"  y="250" width="240" height="140" rx="18" fill="#FFFFFF"/>
     <rect x="840"  y="250" width="240" height="140" rx="18" fill="#FFFFFF"/>
     <rect x="1100" y="250" width="240" height="140" rx="18" fill="#FFFFFF"/>
     <rect x="1360" y="250" width="240" height="140" rx="18" fill="#D2562F"/>
     <rect x="1620" y="250" width="240" height="140" rx="18" fill="#FFFFFF"/>
-    <!-- day shift row -->
     <rect x="320"  y="410" width="240" height="220" rx="22" fill="#9C7E33"/>
     <rect x="580"  y="410" width="240" height="220" rx="22" fill="#9C7E33"/>
     <rect x="840"  y="410" width="240" height="220" rx="22" fill="#3E7B62"/>
     <rect x="1100" y="410" width="240" height="220" rx="22" fill="#3E7B62"/>
     <rect x="1360" y="410" width="240" height="220" rx="22" fill="#9C7E33"/>
     <rect x="1620" y="410" width="240" height="220" rx="22" fill="#9C7E33"/>
-    <!-- night shift row -->
     <rect x="320"  y="650" width="240" height="220" rx="22" fill="#B4663C"/>
     <rect x="580"  y="650" width="240" height="220" rx="22" fill="#B4663C"/>
     <rect x="840"  y="650" width="240" height="220" rx="22" fill="#44648C"/>
     <rect x="1100" y="650" width="240" height="220" rx="22" fill="#44648C"/>
     <rect x="1360" y="650" width="240" height="220" rx="22" fill="#B4663C"/>
     <rect x="1620" y="650" width="240" height="220" rx="22" fill="#B4663C"/>
-    <!-- next-week panel + black progress bar -->
     <rect x="100" y="902" width="1760" height="118" rx="22" fill="#FFFFFF"/>
     <rect x="0" y="1060" width="900" height="16" rx="8" fill="#1A1915"/>
   </svg>
